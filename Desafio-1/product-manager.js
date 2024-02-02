@@ -12,47 +12,42 @@ class Product {
 class ProductManager {
     constructor() {
         this.products = [];
+        this.productIdCounter = 1;
     }
 
-    addProduct(product) {
+    addProduct(title, description, price, thumbnail, code, stock) {
+        if (!title || !description || !price || !thumbnail || !code || !stock) {
+            console.log("Todos los campos son obligatorios.");
+            return;
+        }
+
+
+        const existingProduct = this.products.find(product => product.code === code);
+        if (existingProduct) {
+            console.log(`Ya existe un producto con el código '${code}'.`);
+            return;
+        }
+
+        const product = new Product(title, description, price, thumbnail, code, stock);
+        product.id = this.productIdCounter++;
+        
         this.products.push(product);
-        console.log(`Producto '${product.title}' Agregado correctamente.`);
+        console.log(`Producto '${title}' agregado correctamente.`);
     }
 
-    removeProduct(code) {
-        const index = this.products.findIndex(product => product.code === code);
-        if (index !== -1) {
-            const removedProduct = this.products.splice(index, 1)[0];
-            console.log(`Producto '${removedProduct.title}' eliminado exitosamente.`);
-        } else {
-            console.log(`Product with code '${code}' no encontrado.`);
-        }
-    }
-
-    displayProducts() {
-        if (this.products.length > 0) {
-            console.log("Lista de productos: ");
-            this.products.forEach(product => {
-                console.log(`${product.title}: $${product.price} - Stock: ${product.stock}`);
-            });
-        } else {
-            console.log("No hay productos disponibles.");
-        }
+    getProducts() {
+        return this.products;
     }
 }
 
 const manager = new ProductManager();
 
-const product1 = new Product("Remera", "Remera de algodón oversize de alta calidad", 5000, "remera.jpg", "RM001", 25);
-const product2 = new Product("Jean", "Jean clásico con roturas", 10000, "jean.jpg", "JN001", 10);
-const product3 = new Product("Campera", "Campera impermeable para todas las estaciones", 15000, "campera.jpg", "CP001", 20);
+manager.addProduct("Remera", "Remera de algodón oversize de alta calidad", 5000, "remera.jpg", "RM001", 25);
+manager.addProduct("Jean", "Jean clásico con roturas", 10000, "jean.jpg", "JN001", 10);
+manager.addProduct("Campera", "Campera impermeable para todas las estaciones", 15000, "campera.jpg", "CP001", 20);
 
-manager.addProduct(product1);
-manager.addProduct(product2);
-manager.addProduct(product3);
+console.log(manager.getProducts());
 
-manager.displayProducts();
 
-manager.removeProduct("SP001");
 
-manager.displayProducts();
+
