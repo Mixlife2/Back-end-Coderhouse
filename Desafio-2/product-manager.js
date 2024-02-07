@@ -21,6 +21,7 @@ class ProductManager {
             return;
         }
 
+
         const existingProduct = this.products.find(product => product.code === code);
         if (existingProduct) {
             console.log(`Ya existe un producto con el código '${code}'.`);
@@ -37,15 +38,6 @@ class ProductManager {
     getProducts() {
         return this.products;
     }
-
-    getProductById(id) {
-        const product = this.products.find(product => product.id === id);
-        if (product) {
-            return product;
-        } else {
-            console.log("Producto no encontrado.");
-        }
-    }
 }
 
 const manager = new ProductManager();
@@ -55,6 +47,3 @@ manager.addProduct("Jean", "Jean clásico con roturas", 10000, "jean.jpg", "JN00
 manager.addProduct("Campera", "Campera impermeable para todas las estaciones", 15000, "campera.jpg", "CP001", 20);
 
 console.log(manager.getProducts());
-
-console.log(manager.getProductById(2)); 
-console.log(manager.getProductById(5)); 
