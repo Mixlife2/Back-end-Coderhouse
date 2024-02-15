@@ -1,22 +1,8 @@
 const fs = require('fs');
 
-class Product {
-    constructor(title, description, price, thumbnail, code, stock) {
-        this.id = null; 
-        this.title = title;
-        this.description = description;
-        this.price = price;
-        this.thumbnail = thumbnail;
-        this.code = code;
-        this.stock = stock;
-    }
-}
-
-
 class ProductManager {
     constructor(path) {
         this.path = path;
-        this.products = [];
         this.productIdCounter = 1;
         this.loadFromFile();
     }
@@ -27,27 +13,35 @@ class ProductManager {
             return;
         }
 
-        const existingProduct = this.products.find(product => product.code === productData.code);
+        const existingProduct = this.getProductByCode(productData.code);
         if (existingProduct) {
             console.log(`Ya existe un producto con el código '${productData.code}'.`);
             return;
         }
 
         productData.id = this.productIdCounter++;
-        
-        this.products.push(productData);
+        this.saveToFile(productData);
         console.log(`Producto '${productData.title}' agregado correctamente.`);
-
-       
-        this.saveToFile();
     }
 
-    getProducts() {
-        return this.products;
+    getProductByCode(code) {
+        const products = this.getAllProducts();
+        return products.find(product => product.code === code);
+    }
+
+    getAllProducts() {
+        try {
+            const data = fs.readFileSync(this.path, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.log('Error al cargar productos desde archivo:', error.message);
+            return [];
+        }
     }
 
     getProductById(id) {
-        const product = this.products.find(product => product.id === id);
+        const products = this.getAllProducts();
+        const product = products.find(product => product.id === id);
         if (product) {
             return product;
         } else {
@@ -56,56 +50,21 @@ class ProductManager {
         }
     }
 
-    saveToFile() {
+    saveToFile(productData) {
         try {
-            fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2));
-            console.log('Productos guardados en archivo.');
+            let products = this.getAllProducts();
+            products.push(productData);
+            fs.writeFileSync(this.path, JSON.stringify(products, null, 2));
+            console.log('Producto guardado en archivo.');
         } catch (error) {
-            console.log('Error al guardar productos en archivo:', error.message);
-        }
-    }
-    loadFromFile() {
-        try {
-            const data = fs.readFileSync(this.path, 'utf8');
-            this.products = JSON.parse(data);
-            console.log('Productos cargados desde archivo.');
-        } catch (error) {
-            console.log('Error al cargar productos desde archivo:', error.message);
+            console.log('Error al guardar producto en archivo:', error.message);
         }
     }
 
-    updateProduct(id, updatedFields) {
-        let updated = false;
-
-        this.products.forEach(product => {
-            if (product.id === id) {
-                Object.assign(product, updatedFields);
-                updated = true;
-            }
-        });
-
-        if (updated) {
-            this.saveToFile();
-            console.log(`Producto con ID ${id} actualizado correctamente.`);
-        } else {
-            console.log(`No se encontró ningún producto con el ID ${id}.`);
-        }
-    }
-    deleteProduct(id) {
-        const index = this.products.findIndex(product => product.id === id);
-        if (index !== -1) {
-            this.products.splice(index, 1);
-            this.saveToFile();
-            console.log(`Producto con ID ${id} eliminado correctamente.`);
-        } else {
-            console.log(`No se encontró ningún producto con el ID ${id}.`);
-        }
-    }
 
 }
 
 const manager = new ProductManager('products.json');
-
 
 manager.addProduct({
     title: "Remera",
@@ -115,6 +74,7 @@ manager.addProduct({
     code: "RM001",
     stock: 25
 });
+
 manager.addProduct({
     title: "Jean",
     description: "Jean clásico con roturas",
@@ -123,6 +83,7 @@ manager.addProduct({
     code: "JN001",
     stock: 10
 });
+
 manager.addProduct({
     title: "Campera",
     description: "Campera impermeable para todas las estaciones",
@@ -132,7 +93,7 @@ manager.addProduct({
     stock: 20
 });
 
-console.log(manager.getProducts());
+console.log(manager.getAllProducts());
 
 console.log(manager.getProductById(2)); 
 console.log(manager.getProductById(5));
