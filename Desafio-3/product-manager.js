@@ -104,7 +104,11 @@ manager.addProduct({
     stock: 20
 });
 
+
+
 console.log(manager.getAllProducts());
 
 console.log(manager.getProductById(2)); 
 console.log(manager.getProductById(5));
+
+module.exports = ProductManager;
