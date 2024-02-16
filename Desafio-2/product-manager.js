@@ -61,6 +61,17 @@ class ProductManager {
         }
     }
 
+    loadFromFile() {
+        try {
+            const data = fs.readFileSync(this.path, 'utf8');
+            this.products = JSON.parse(data);
+            console.log('Productos cargados desde archivo.');
+        } catch (error) {
+            console.log('Error al cargar productos desde archivo:', error.message);
+            this.products = []; // Inicializa el array de productos en caso de error.
+        }
+    }
+    
 
 }
 
