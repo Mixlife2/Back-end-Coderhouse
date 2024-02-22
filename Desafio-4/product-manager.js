@@ -108,6 +108,8 @@ class ProductManager {
             return false; // Producto no encontrado
         }
     }
+
+
     
 
 }
@@ -147,9 +149,5 @@ manager.addProduct({
     thumbnails: ["pantalon.jpg"], 
 });
 
-
-console.log(manager.getAllProducts(1));
-console.log(manager.getProductById(2)); 
-console.log(manager.getProductById(3));
 
 module.exports = ProductManager;

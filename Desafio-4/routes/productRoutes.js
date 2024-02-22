@@ -4,13 +4,12 @@ const ProductManager = require('../product-manager.js');
 
 const productManager = new ProductManager('products.json');
 
-// Ruta para obtener todos los productos
 router.get('/', (req, res) => {
     const products = productManager.getAllProducts();
     res.json(products);
 });
 
-// Ruta para obtener un producto por su ID
+
 router.get('/:pid', (req, res) => {
     const productId = parseInt(req.params.pid);
     const product = productManager.getProductById(productId);
@@ -55,7 +54,7 @@ router.put('/:pid', (req, res) => {
     }
 
     const updatedProduct = {
-        id: productId, // Aseguramos que el ID del producto sea el mismo que el recibido en la solicitud
+        id: productId, 
         title,
         description,
         code,
@@ -66,7 +65,6 @@ router.put('/:pid', (req, res) => {
         thumbnails
     };
 
-    // Llama al método updateProduct de tu ProductManager
     const result = productManager.updateProduct(updatedProduct);
 
     if (result) {
