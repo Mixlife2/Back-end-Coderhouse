@@ -39,18 +39,7 @@ router.post('/:cid/product/:pid', (req, res) => {
         const cart = cartManager.getCartById(cartId);
 
         if (cart) {
-            const existingProduct = cart.products.find(item => item.id === productId);
-
-            if (existingProduct) {
-                existingProduct.quantity++;
-            } else {
-                cart.products.push({
-                    id: productId,
-                    quantity: 1
-                });
-            }
-
-            cartManager.saveToFile();
+            cartManager.saveToFile(productId, cartId); 
 
             res.status(200).json({ message: 'Producto agregado al carrito correctamente', cart: cart });
         } else {
@@ -60,6 +49,7 @@ router.post('/:cid/product/:pid', (req, res) => {
         res.status(404).json({ error: 'El producto no existe' });
     }
 });
+
 
 
 module.exports = router;

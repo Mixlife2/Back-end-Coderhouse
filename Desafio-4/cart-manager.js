@@ -48,14 +48,36 @@ class CartManager {
         }
     }
 
-    saveToFile() {
+    saveToFile(productId, cartId) {
         try {
-            fs.writeFileSync(this.path, JSON.stringify(this.carts, null, 2));
-            console.log('Carritos guardados en archivo.');
+            const carts = this.getAllCarts();
+            const cartIndex = carts.findIndex(cart => cart.id === cartId);
+            if (cartIndex !== -1) {
+                const cart = carts[cartIndex];
+    
+                const existingProduct = cart.products.find(item => item.product === productId);
+                if (existingProduct) {
+                    existingProduct.quantity++;
+                } else {
+
+                    cart.products.push({
+                        product: productId,
+                        quantity: 1
+                    });
+                }
+    
+                fs.writeFileSync(this.path, JSON.stringify(carts, null, 2));
+                console.log('Carritos guardados en archivo.');
+            } else {
+                console.log('Carrito no encontrado.');
+            }
         } catch (error) {
             console.log('Error al guardar carritos en archivo:', error.message);
         }
     }
+    
+    
+      
 
     loadFromFile() {
         try {

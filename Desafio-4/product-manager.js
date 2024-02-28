@@ -105,7 +105,7 @@ class ProductManager {
             fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2));
             return true;
         } else {
-            return false; // Producto no encontrado
+            return false; 
         }
     }
 
@@ -113,41 +113,5 @@ class ProductManager {
     
 
 }
-
-const manager = new ProductManager('products.json');
-
-manager.addProduct({
-    title: "Remera",
-    description: "Remera de algodón oversize de alta calidad",
-    code: "RM001",
-    price: 5000,
-    status: true,
-    stock: 25, 
-    category: "Remera",
-    thumbnails: ["remera.jpg"], 
-});
-
-manager.addProduct({
-    title: "Buzo",
-    description: "Buzo de algodón con capucha",
-    code: "RM002",
-    price: 5000,
-    status: true,
-    stock: 25, 
-    category: "Buzo",
-    thumbnails: ["buzo.jpg"], 
-});
-
-manager.addProduct({
-    title: "Pantalon",
-    description: "Jean de alta calidad",
-    code: "RM003",
-    price: 5000,
-    status: true,
-    stock: 25, 
-    category: "Pantalon",
-    thumbnails: ["pantalon.jpg"], 
-});
-
 
 module.exports = ProductManager;
