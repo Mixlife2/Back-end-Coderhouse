@@ -1,0 +1,73 @@
+const express = require('express');
+const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const handlebars = require('express-handlebars');
+const vistaRoutes = require('./routes/vistasRoutes');
+const { Server } = require('socket.io');
+const path = require('path');
+
+const app = express();
+
+
+
+const PORT = process.env.PORT || 8080;
+
+let io;
+
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+app.engine('handlebars', handlebars.engine());
+app.set ('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.use('/api/products', productRoutes);
+app.use('/carts', cartRoutes);
+app.use('/api/carts', cartRoutes);
+app.use('/', vistaRoutes);
+app.use('/realtimeproducts', vistaRoutes);
+
+
+app.get('*', (req, res) => {
+    res.status(404).send("error 404, not found.");
+});
+
+
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
+
+
+io = new Server(app.listen(8000, () => {
+    console.log('Servidor corriendo en el puerto 8000');           
+}
+));
+
+const productManager = require('./product-manager');
+
+io.on("connection", (socket) => {
+    console.log("Usuario conectado");
+
+    // Manejar evento 'getProducts'
+    socket.on("getProducts", async () => {
+        const products = await productManager.getProducts();
+        io.emit("prodsData", products);
+    });
+
+    // Manejar evento 'newProduct'
+    socket.on("newProduct", async (newProd) => {
+        await productManager.addProduct(newProd);
+        io.emit("getProducts"); // Actualizar lista de productos después de agregar uno nuevo
+    });
+
+    // Manejar evento 'deleteProduct'
+    socket.on("deleteProduct", async (prodId) => {
+        await productManager.deleteProduct(prodId);
+        io.emit("getProducts"); // Actualizar lista de productos después de eliminar uno
+    });
+});
+  
