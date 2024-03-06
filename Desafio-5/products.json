@@ -1,18 +1,5 @@
 [
   {
-    "title": "Pantalon",
-    "description": "Jean de alta calidad",
-    "code": "RM003",
-    "price": 5000,
-    "status": true,
-    "stock": 25,
-    "category": "Pantalon",
-    "thumbnails": [
-      "pantalon.jpg"
-    ],
-    "id": 1
-  },
-  {
     "id": 2,
     "title": "camiseta de fulbo",
     "description": "de los 70",
@@ -22,22 +9,8 @@
     "stock": 50,
     "category": "Remeras",
     "thumbnails": [
-      "thumbnail1.jpg",
-      "thumbnail2.jpg"
+      "thumbnail1.jpg"
     ]
-  },
-  {
-    "title": "Buzo",
-    "description": "Buzo de algodón con capucha",
-    "code": "RM002",
-    "price": 5000,
-    "status": true,
-    "stock": 25,
-    "category": "Buzo",
-    "thumbnails": [
-      "buzo.jpg"
-    ],
-    "id": 3
   },
   {
     "title": "Buzo",

@@ -53,21 +53,17 @@ io.on("connection", (socket) => {
     console.log("Usuario conectado");
 
     // Manejar evento 'getProducts'
-    socket.on("getProducts", async () => {
-        const products = await productManager.getProducts();
-        io.emit("prodsData", products);
-    });
+    io.on('connection', (socket) => {
+        socket.on('addProduct', (productName) => {
+            
+            io.emit('productAdded', productName);
+        });
 
-    // Manejar evento 'newProduct'
-    socket.on("newProduct", async (newProd) => {
-        await productManager.addProduct(newProd);
-        io.emit("getProducts"); // Actualizar lista de productos después de agregar uno nuevo
-    });
+        socket.on('deleteProduct', (productId) => {
 
-    // Manejar evento 'deleteProduct'
-    socket.on("deleteProduct", async (prodId) => {
-        await productManager.deleteProduct(prodId);
-        io.emit("getProducts"); // Actualizar lista de productos después de eliminar uno
+            io.emit('productDeleted', productId);
+        });
     });
-});
+}
+);
   
