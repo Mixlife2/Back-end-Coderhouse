@@ -52,7 +52,6 @@ const productManager = require('./product-manager');
 io.on("connection", (socket) => {
     console.log("Usuario conectado");
 
-    // Manejar evento 'getProducts'
     io.on('connection', (socket) => {
         socket.on('addProduct', (productName) => {
             
