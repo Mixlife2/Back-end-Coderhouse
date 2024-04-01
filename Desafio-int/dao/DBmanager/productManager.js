@@ -1,16 +1,18 @@
 const Product = require('../models/productModels');
+const mongoose = require('mongoose');
 
 class ProductManager {
     constructor() {
         
     }
 
+
     async addProduct(productData) {
         try {
             return await Product.create(productData);
         } catch (error) {
             console.error('Error al agregar producto:', error);
-            throw error;
+            throw error;    
         }
     }
 
@@ -34,7 +36,8 @@ class ProductManager {
 
     async getProductById(id) {
         try {
-            return await Product.findById(id);
+            const product = await Product.findById(id);
+            return product;
         } catch (error) {
             console.error('Error al obtener producto por ID:', error);
             throw error;
@@ -59,7 +62,7 @@ class ProductManager {
         }
     }
 
-    // Otros métodos según sea necesario
+    
 }
 
 module.exports = ProductManager;
