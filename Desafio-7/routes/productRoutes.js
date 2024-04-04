@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ProductManager = require('../dao/DBmanager/productManager.js');
 const mongoose = require('mongoose')
+const productModels = require('../dao/models/productModels.js')
 
 
 const productManager = new ProductManager();
@@ -9,7 +10,13 @@ const productManager = new ProductManager();
 
 router.get('/', async (req, res) => {
     try {
-        let products =await productManager.getAllProducts()
+        const { page = 1, limit = 10 } = req.query;
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit)
+        };
+        const products = await productModels.paginate({}, options);
+        // let products =await productManager.getAllProducts()
         res.status(200).json({
             products
         })
@@ -45,7 +52,28 @@ router.get('/:id', async (req, res) => {
             res.setHeader('Content-Type','application/json');
             return res.status(400).json({error:`No existen productos con id ${id}`})
         }
-    } catch (error) {
+    } catch (error) {const mongoose = require('mongoose');
+const paginate = require("mongoose-paginate-v2");
+
+const productsColl = "productos"
+const productSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: String,
+    code: { type: String, required: true, unique: true },
+    price: { type: Number, required: true },
+    status: { type: String, required: true },
+    stock: { type: Number, required: true },
+    category: String,
+    thumbnails: [String],
+    createdAt: { type: Date, default: Date.now }
+});
+
+productSchema.plugin(paginate);
+
+const productModels = mongoose.model(productsColl, productSchema);
+
+module.exports = { productModels }; // Exporta un objeto con la clave productModels
+
         res.setHeader('Content-Type','application/json');
         return res.status(500).json(
             {

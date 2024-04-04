@@ -18,7 +18,6 @@ class ProductManager {
         return await productModels.findById(id).lean();
     }
     
-
     async updateProduct(id, modificacion) {
         try {
             return await productModels.findByIdAndUpdate(id, modificacion, { new: true });
