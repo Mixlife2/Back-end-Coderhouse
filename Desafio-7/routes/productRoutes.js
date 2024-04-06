@@ -10,12 +10,14 @@ const productManager = new ProductManager();
 
 router.get('/', async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 5, sort = "asc" } = req.query;
         const options = {
-            page: parseInt(page),
-            limit: parseInt(limit)
+          page: parseInt(page),
+          limit: parseInt(limit),
+          sort: { price: sort === "asc" ? 1 : -1 },
         };
         const products = await productModels.paginate({}, options);
+        
         // let products =await productManager.getAllProducts()
         res.status(200).json({
             products
@@ -31,6 +33,35 @@ router.get('/', async (req, res) => {
         
     }
 })
+
+
+router.get('/products', async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit)
+        };
+        const products = await productModels.aggregate([
+            { $match: { status: "Disponible" } },
+            {
+                $group: {
+                    _id: "$category",
+                    products: { $push: "$$ROOT" } // Agrupa los productos dentro de cada categoría
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            products
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: 'Error inesperado en el servidor - Intente más tarde, o contacte a su administrador',
+            detalle: error.message
+        });
+    }
+});
 
 
 router.get('/:id', async (req, res) => {
@@ -52,28 +83,7 @@ router.get('/:id', async (req, res) => {
             res.setHeader('Content-Type','application/json');
             return res.status(400).json({error:`No existen productos con id ${id}`})
         }
-    } catch (error) {const mongoose = require('mongoose');
-const paginate = require("mongoose-paginate-v2");
-
-const productsColl = "productos"
-const productSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    description: String,
-    code: { type: String, required: true, unique: true },
-    price: { type: Number, required: true },
-    status: { type: String, required: true },
-    stock: { type: Number, required: true },
-    category: String,
-    thumbnails: [String],
-    createdAt: { type: Date, default: Date.now }
-});
-
-productSchema.plugin(paginate);
-
-const productModels = mongoose.model(productsColl, productSchema);
-
-module.exports = { productModels }; // Exporta un objeto con la clave productModels
-
+    } catch (error) {
         res.setHeader('Content-Type','application/json');
         return res.status(500).json(
             {

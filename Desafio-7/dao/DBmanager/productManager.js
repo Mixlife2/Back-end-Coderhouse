@@ -11,7 +11,15 @@ class ProductManager {
     }
 
     async getAllProducts() {
-        return await productModels.find().lean()
+        return await productModels.aggregate(
+            [
+                {
+                    $group:{
+                        _id: "$category"
+                    }
+                }
+            ]
+        )
     }
 
     async getProductById(id) {
