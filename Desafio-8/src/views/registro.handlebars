@@ -10,12 +10,19 @@
         <div style="font-weight: bold; color:green;">{{mensaje}}</div>
     {{/if}}
 
-    <input type="text" name="nombre" placeholder="nombre">
+    <input type="text" name="username" placeholder="username">
     <input type="email" name="email" placeholder="email">
     <input type="password" name="password" placeholder="contraseña">
+    <br>
+    <label for="role">Role:</label>
+    <select name="role" id="role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+    </select>
     <br>
     <input type="submit" value="Registrar">
 
 </form>
+
 
 {{>menu}}
