@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
 })
 
 
-router.get('/products', async (req, res) => {
+router.get('/products',  async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
         const options = {
