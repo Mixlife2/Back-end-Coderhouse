@@ -9,6 +9,8 @@ const path = require('path');
 const connectDB = require('./db'); 
 const session = require('express-session')
 const {Server} = require('socket.io')
+const initPassport = require('./config/passport.config.js');
+const passport = require('passport');
 
 const PORT = 8080;
 
@@ -25,6 +27,11 @@ app.use(session(
         saveUninitialized: true
     }
 ))
+
+//paso numero 2, inicializo en el app.js
+initPassport()
+app.use(passport.initialize())
+app.use(passport.session()) //solo si usamos sesiones
 
 
 app.engine('handlebars', engine());
