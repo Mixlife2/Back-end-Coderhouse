@@ -4,6 +4,7 @@ const github = require('passport-github2')
 const { creaHash, validaPassword } = require('../utils.js');
 const usersManager = require('../dao/DBmanager/usersManager.js')
 
+
 const usuariosManager = new usersManager
 
 const initPassport = () => {
@@ -86,31 +87,29 @@ const initPassport = () => {
                 clientSecret:"2160f0fc5d4c65b2dd441e1d963b369eb4591ccc",
                 callbackURL:"http://localhost:8080/api/sessions/callbackGithub"
             },
-            async (accessToken, refreshToken, profile, done)=>{
-                
+            async function(accessToken, refreshToken, profile, done){
                 try {
-                    console.log("Profile received from GitHub:", profile);
-                    let {name:username, email}=profile._json
+                    let username=profile._json.name
+                    let email=profile._json.email
                     if(!email){
-                        console.log("No email found in GitHub profile");
                         return done(null, false)
                     }
                     let usuario=await usuariosManager.getBy({email})
                     if(!usuario){
-                        console.log("User not found, creating new user with GitHub data");
-                        usuario=await usuariosManager.create(
-                            {username, email, profileGithub:profile}
-                        )
+                        usuario=await usuariosManager.create({
+                            username, email, 
+                            profileGithub: profile
+                        })
                     }
-                    console.log("User found or created, returning user object");
+
                     return done(null, usuario)
                 } catch (error) {
-                    console.error("Error in GitHub authentication strategy:", error);
                     return done(error)
                 }
             }
         )
     )
+
     
 
     

@@ -7,11 +7,12 @@ const passport = require('passport')
 
 let usuariosManager= new usersManager()
 
-router.get("/error", (req, res)=>{
+router.get("/errorGitHub", (req, res)=>{
     res.setHeader('Content-Type','application/json');
     return res.status(500).json(
         {
             error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+            detalle:`Fallo al autenticar con GitHub`
         }
     )
     
@@ -48,14 +49,17 @@ router.post('/login', passport.authenticate("login", {failureRedirect:"/api/sess
 
 router.get("/github", passport.authenticate("github", {}), (req, res) => {})
 
-router.get("/callbackGithub", passport.authenticate("github", {failureRedirect:"/api/sessions/error"}), (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ error: "Error de autenticación con GitHub" });
-    }
+router.get('/callbackGithub', passport.authenticate("github", {failureRedirect:"/api/sessions/errorGitHub"}), (req,res)=>{
 
-    res.setHeader('Content-Type', 'application/json');
-    res.status(200).json({ msg: "Login correcto...!!!", usuario: req.user });
-});
+    req.session.usuario=req.user
+    return res.redirect('/perfil');
+    res.setHeader('Content-Type','application/json');
+    return res.status(200).json({
+        payload:"Login correcto", 
+        usuario:req.user
+        
+    });
+})
 
 
 
