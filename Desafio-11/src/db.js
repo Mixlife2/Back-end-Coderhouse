@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const config = require('./config/config');
 
 const connect = async () => {
     try {
-        await mongoose.connect("mongodb+srv://eddykratochvil:581120eRHM@cluster0.ipkkxpa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",{dbName:"ecommerse"});
+        await mongoose.connect(config.MONGO_URL,{dbName:"ecommerse"});
         console.log("DB Online...!!!");
     } catch (error) {
         console.log("Fallo conexión. Detalle:", error.message);
