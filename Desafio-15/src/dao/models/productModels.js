@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const paginate = require('mongoose-paginate-v2')
 
 const productSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -10,10 +9,10 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, required: true },
     category: String,
     thumbnails: [String],
-    createdAt: { type: Date, default: Date.now }
+    owner: { type: String, default: 'admin' }  // Campo para almacenar el correo electrónico del propietario
+}, {
+    timestamps: true
 });
-
-productSchema.plugin(paginate)
 
 const Product = mongoose.model('Product', productSchema);
 

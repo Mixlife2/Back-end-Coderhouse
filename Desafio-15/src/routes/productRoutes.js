@@ -1,25 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.js');
-const ProductManager = require('../dao/productMongoDAO.js');
+const auth = require('../middlewares/auth');
+const ProductController = require('../controllers/productControllers');
 
-const ProductController = require('../controllers/productControllers.js');
+// Obtener todos los productos
+router.get('/', auth('premium', 'admin'), ProductController.getProducts);
 
+// Obtener productos disponibles
+router.get('/products', auth('premium', 'admin'), ProductController.getProductsAvailable);
 
-const productManager = new ProductManager();
+// Obtener un producto por ID
+router.get('/:id', auth('premium', 'admin'), ProductController.getProductById);
 
+// Crear un nuevo producto
+router.post('/', auth('premium', 'admin'), ProductController.createProduct);
 
-router.get('/',auth('administrador'), ProductController.getProducts )
+// Actualizar un producto por ID
+router.put('/:id', auth('premium', 'admin'), ProductController.updateProduct);
 
-router.get('/products',auth('administrador'),  ProductController.getProductsAvailable );
-
-router.get('/:id',auth('administrador'), ProductController.getProductById );
-
-router.post('/', auth('administrador'),ProductController.createProduct );
-
-router.put('/:id',auth('administrador'), ProductController.updateProduct);
-
-router.delete('/:id',auth('administrador'), ProductController.deleteProduct);
-
+// Eliminar un producto por ID
+router.delete('/:id', auth('premium', 'admin'), ProductController.deleteProduct);
 
 module.exports = router;

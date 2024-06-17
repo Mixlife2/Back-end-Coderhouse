@@ -1,6 +1,6 @@
 const Product = require('../dao/models/productModels.js');
 const mongoose = require('mongoose');
-const logger = require ('../utils/logger.js')
+const logger = require('../utils/logger.js');
 
 class ProductController {
     static async getProductsAvailable(req, res) {
@@ -19,7 +19,7 @@ class ProductController {
                     }
                 }
             ]);
-    
+
             res.status(200).json({
                 products
             });
@@ -30,49 +30,41 @@ class ProductController {
             });
         }
     }
-    static async getProducts  (req, res)  {
+
+    static async getProducts(req, res) {
         try {
             const { page = 1, limit = 5, sort = "asc" } = req.query;
             const options = {
-              page: parseInt(page),
-              limit: parseInt(limit),
-              sort: { price: sort === "asc" ? 1 : -1 },
+                page: parseInt(page),
+                limit: parseInt(limit),
+                sort: { price: sort === "asc" ? 1 : -1 },
             };
             const products = await Product.paginate({}, options);
-            
-            // let products =await productManager.getAllProducts()
+
             res.status(200).json({
                 products
-            })
+            });
         } catch (error) {
-            res.setHeader('Content-Type','application/json');
-            return res.status(500).json(
-                {
-                    error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                    detalle:`${error.message}`
-                }
-            )
-            
+            res.status(500).json({
+                error: 'Error inesperado en el servidor - Intente más tarde, o contacte a su administrador',
+                detalle: error.message
+            });
         }
     }
 
     static async getProductById(req, res) {
         try {
-            const { id } = req.params; 
+            const { id } = req.params;
             if (!mongoose.Types.ObjectId.isValid(id)) {
-                res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: `Id inválido` });
             }
             const product = await Product.findById(id);
-            if (product) {
-                res.status(200).json({ product });
-            } else {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(400).json({ error: `No existe un producto con id ${id}` });
+            if (!product) {
+                return res.status(404).json({ error: `No existe un producto con id ${id}` });
             }
+            res.status(200).json({ product });
         } catch (error) {
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({
+            res.status(500).json({
                 error: 'Error inesperado en el servidor - Intente más tarde, o contacte a su administrador',
                 detalle: error.message
             });
@@ -80,38 +72,37 @@ class ProductController {
     }
 
     static async createProduct(req, res) {
-    try {
-      const { title, description, code, price, status, stock, category, thumbnails } = req.body;
-      if (!title || !description || !code || !price || !status || !stock || !category || !thumbnails) {
-        logger.warn('Faltan datos obligatorios para crear un producto');
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(400).json({ error: `Faltan datos obligatorios` });
-      }
+        try {
+            const { title, description, code, price, status, stock, category, thumbnails } = req.body;
+            if (!title || !description || !code || !price || !status || !stock || !category || !thumbnails) {
+                logger.warn('Faltan datos obligatorios para crear un producto');
+                return res.status(400).json({ error: `Faltan datos obligatorios` });
+            }
 
-      logger.debug('Recibiendo datos del producto');
-      const newProduct = await Product.create({
-        title,
-        description,
-        code,
-        price,
-        status,
-        stock,
-        category,
-        thumbnails
-      });
-      logger.info('Producto agregado satisfactoriamente');
+            const owner = req.user.email; // Asignar el owner del producto al usuario actual
 
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(201).json({ payload: newProduct });
-    } catch (error) {
-      logger.error(`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador: ${error.message}`);
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(500).json({
-        error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-        detalle: error.message
-      });
+            const newProduct = await Product.create({
+                title,
+                description,
+                code,
+                price,
+                status,
+                stock,
+                category,
+                thumbnails,
+                owner // Asignar el owner al producto creado
+            });
+
+            logger.info('Producto agregado satisfactoriamente');
+            return res.status(201).json({ payload: newProduct });
+        } catch (error) {
+            logger.error(`Error inesperado en el servidor: ${error.message}`);
+            return res.status(500).json({
+                error: 'Error inesperado en el servidor - Intente más tarde, o contacte a su administrador',
+                detalle: error.message
+            });
+        }
     }
-  }
 
     static async updateProduct(req, res) {
         try {
@@ -119,20 +110,22 @@ class ProductController {
             const { title, description, code, price, status, stock, category, thumbnails } = req.body;
 
             if (!mongoose.Types.ObjectId.isValid(id)) {
-                res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: `ID inválido` });
             }
 
             if (!title || !description || !code || !price || !status || !stock || !category || !thumbnails) {
-                res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({ error: `Faltan datos obligatorios` });
             }
 
             let existingProduct = await Product.findById(id);
 
             if (!existingProduct) {
-                res.setHeader('Content-Type', 'application/json');
                 return res.status(404).json({ error: `No existe un producto con ID ${id}` });
+            }
+
+            // Verificar si el usuario tiene permisos para actualizar el producto
+            if (req.user.role === 'premium' && existingProduct.owner !== req.user.email) {
+                return res.status(403).json({ error: 'No tienes permiso para actualizar este producto' });
             }
 
             existingProduct.title = title;
@@ -146,12 +139,10 @@ class ProductController {
 
             let updatedProduct = await existingProduct.save();
 
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(200).json({ product: updatedProduct });
+            res.status(200).json({ product: updatedProduct });
         } catch (error) {
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({
-                error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+            res.status(500).json({
+                error: 'Error inesperado en el servidor - Intente más tarde, o contacte a su administrador',
                 detalle: error.message
             });
         }
@@ -165,15 +156,21 @@ class ProductController {
                 return res.status(400).json({ error: 'ID inválido' });
             }
 
-            const result = await Product.findByIdAndDelete(id);
+            const existingProduct = await Product.findById(id);
 
-            if (!result) {
+            if (!existingProduct) {
                 return res.status(404).json({ error: `No existe un producto con el ID ${id}` });
             }
 
+            // Verificar si el usuario tiene permisos para eliminar el producto
+            if (req.user.role === 'premium' && existingProduct.owner !== req.user.email) {
+                return res.status(403).json({ error: 'No tienes permiso para eliminar este producto' });
+            }
+
+            await Product.findByIdAndDelete(id);
+
             res.status(200).json({ message: `Producto eliminado con ID ${id}` });
         } catch (error) {
-            console.error('Error al eliminar producto:', error);
             res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
