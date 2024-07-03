@@ -1,6 +1,6 @@
 const UserDTO = require("../dto/UserDTO");
 
-const auth = (role) => {
+const auth = (roles) => {
     return (req, res, next) => {
         if (!req.isAuthenticated()) {
             return res.status(401).json({ error: "No hay usuario autenticado." });
@@ -8,7 +8,8 @@ const auth = (role) => {
 
         const userDTO = new UserDTO(req.user);
 
-        if (role && userDTO.role !== role) {
+        // Verifica si el rol del usuario está incluido en los roles permitidos
+        if (roles && !roles.includes(userDTO.role)) {
             return res.status(403).json({ error: "No tienes permiso para acceder a este recurso." });
         }
 
