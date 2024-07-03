@@ -36,7 +36,7 @@ const options = {
     definition: {
         openapi:"3.0.0",
         info: {
-            title: "ABM / Usuarios",
+            title: "API Coderhouse",
             version:"1.0.0",
             description: "Documentacion de la API del proyecto Coderhouse."
         },
