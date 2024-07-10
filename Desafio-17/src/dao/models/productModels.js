@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, required: true },
     category: String,
     thumbnails: [String],
-    owner: { type: String, default: 'admin' }  // Campo para almacenar el correo electrónico del propietario
+    owner: { type: String, default: 'admin' } 
 }, {
     timestamps: true
 });
