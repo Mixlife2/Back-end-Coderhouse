@@ -9,15 +9,15 @@ const sessionsRoutes = require('./routes/sessionsRoutes')
 const mockingproducts = require('./routes/mockingRoutes.js')
 const usersRoutes =require ('./routes/usersRoutes.js')
 const path = require('path');
-const connectDB = require('./db'); 
+const connectDB = require('./db.js'); 
 const session = require('express-session')
 const {Server} = require('socket.io')
 const initPassport = require('./config/passport.config.js');
 const passport = require('passport');
+const config = require("./config/config.js")
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require ("swagger-ui-express")
 
-const PORT = 8080;
 
 const app = express();
 const server = http.createServer(app); 
@@ -45,10 +45,6 @@ const options = {
 }
 const spec = swaggerJsdoc(options)
 
-
-
-
-//paso numero 2, inicializo en el app.js
 initPassport()
 app.use(passport.initialize())
 app.use(passport.session()) //solo si usamos sesiones
@@ -92,11 +88,10 @@ app.get('*', (req, res) => {
     
 });
 
-
 connectDB();
 
-server.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+server.listen(() => {
+    console.log(`Servidor corriendo en el puerto ${config.PORT}`);
 });
 
 
